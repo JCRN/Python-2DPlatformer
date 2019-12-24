@@ -73,7 +73,7 @@ class MyGame(arcade.Window):
             self.wall_list.append(wall)
 
         # Create the 'physics engine' using Arcade's PhysicsEngineSimple(). Controls sprite movement and collision detection
-        self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
+        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
 
 
     def on_draw(self):
@@ -90,9 +90,8 @@ class MyGame(arcade.Window):
     def on_key_press(self, key, modifiers):
         """ Called whenever a key is pressed. """
         if key == arcade.key.UP or key == arcade.key.W:
-            self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
-        elif key == arcade.key.DOWN or key == arcade.key.S:
-            self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
+            if self.physics_engine.can_jump():
+                self.player_sprite.change_y = PLAYER_JUMP_SPEED
         elif key == arcade.key.LEFT or key == arcade.key.A:
             self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.RIGHT or key == arcade.key.D:
