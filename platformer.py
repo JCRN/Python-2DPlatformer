@@ -18,6 +18,13 @@ PLAYER_MOVEMENT_SPEED = 5
 GRAVITY = 1
 PLAYER_JUMP_SPEED = 20
 
+# How many pixels to keep as a minimum margin between the character
+# and the edge of the screen
+LEFT_VIEWPORT_MARGIN = 250
+RIGHT_VIEWPORT_MARGIN = 250
+BOTTOM_VIEWPORT_MARGIN = 50
+TOP_VIEWPORT_MARGIN = 100
+
 class MyGame(arcade.Window):
     """
     Main application class
@@ -36,10 +43,22 @@ class MyGame(arcade.Window):
         # Seperate variable that holds the player sprite
         self.player_sprite = None
 
+        # Physics engine
+        self.physics_engine = None
+
+        # Used to keep track of scrolling
+        self.view_bottom = 0
+        self.view_left = 0
+
         arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
 
     def setup(self):
         # Set up the game here. Call this function to restart the game.
+
+        # Used to keep track of scrolling
+        self.view_bottom = 0
+        self.view_left = 0
+
         # Create the sprite lists
         self.player_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
@@ -72,7 +91,7 @@ class MyGame(arcade.Window):
             wall.position = coordinate
             self.wall_list.append(wall)
 
-        # Create the 'physics engine' using Arcade's PhysicsEngineSimple(). Controls sprite movement and collision detection
+        # Create the 'physics engine' using Arcade's PhysicsEnginePlatformer. Controls sprite movement and collision detection
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
 
 
@@ -89,6 +108,7 @@ class MyGame(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         """ Called whenever a key is pressed. """
+
         if key == arcade.key.UP or key == arcade.key.W:
             if self.physics_engine.can_jump():
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
@@ -99,6 +119,7 @@ class MyGame(arcade.Window):
 
     def  on_key_release(self, key, modifiers):
         """ Called whenever a key is released """
+
         if key == arcade.key.LEFT or key == arcade.key.A:
             self.player_sprite.change_x = 0
         elif key == arcade.key.RIGHT or key == arcade.key.D:
@@ -109,6 +130,44 @@ class MyGame(arcade.Window):
 
         # Move the player with the physics engine
         self.physics_engine.update()
+
+        # --- Manage Scrolling ---
+
+        # Track if viewport needs to be changed
+
+        changed = False
+
+        # Scroll left
+        left_boundary = self.view_left + LEFT_VIEWPORT_MARGIN
+        if self.player_sprite.left < left_boundary:
+            self.view_left -= left_boundary - self.player_sprite.left
+            changed = True
+
+        # Scroll right
+        right_boundary = self.view_left + SCREEN_WIDTH - RIGHT_VIEWPORT_MARGIN
+        if self.player_sprite.right > right_boundary:
+            self.view_left += self.player_sprite.right - right_boundary
+            changed = True
+        
+        # Scroll up
+        top_boundary = self.view_bottom + SCREEN_HEIGHT - TOP_VIEWPORT_MARGIN
+        if self.player_sprite.top > top_boundary:
+            self.view_bottom += self.player_sprite.top - top_boundary
+            changed = True
+
+        # Scroll down
+        bottom_boundary = self.view_bottom + BOTTOM_VIEWPORT_MARGIN
+        if self.player_sprite.bottom < bottom_boundary:
+            self.view_bottom -= bottom_boundary - self.player_sprite.bottom
+            changed = True
+
+        if changed:
+            # Only scroll to ints, otherwise pixels won't line up on screen
+            self.view_bottom = int(self.view_bottom)
+            self.view_left = int(self.view_left)
+
+            # Scroll
+            arcade.set_viewport(self.view_left, SCREEN_WIDTH + self.view_left, self.view_bottom, SCREEN_HEIGHT + self.view_bottom)
 
 
 def main():
