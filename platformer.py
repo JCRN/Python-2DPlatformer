@@ -5,6 +5,11 @@ SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 650
 SCREEN_TITLE = 'Platformer'
 
+# Constants used to scale sprites from their original size
+CHARACTER_SCALING = 1
+TILE_SCALING = 0.5
+COIN_SCALING = 0.5
+
 class MyGame(arcade.Window):
     """
     Main application class
