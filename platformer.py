@@ -1,3 +1,6 @@
+"""
+Created following the tutorial located at: http://arcade.academy/examples/platform_tutorial/index.html
+"""
 import arcade
 
 # Constants
@@ -12,6 +15,8 @@ COIN_SCALING = 0.5
 
 # Movement speed of player, in pixels per frame
 PLAYER_MOVEMENT_SPEED = 5
+GRAVITY = 1
+PLAYER_JUMP_SPEED = 20
 
 class MyGame(arcade.Window):
     """
@@ -109,7 +114,7 @@ class MyGame(arcade.Window):
 
         # Move the player with the physics engine
         self.physics_engine.update()
-        
+
 
 def main():
     # Main method
